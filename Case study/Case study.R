@@ -24,3 +24,19 @@ n_distinct(cs$areaname) # 132 different areas
 # gulf of alaska - 19 species
 GoA <- cs[cs$areaname == 'Gulf of Alaska',]
 
+# check what ssb data is available
+GoAssb <- select(ssb.data, ends_with("GA"))
+
+# remove ones from ssb data that aren't in GoA
+GoAremove1 <- c("HERRRIGA", "PSALMPYBUSGA", "SABLEFEBSAIGA")
+GoAssb <- select(GoAssb, -GoAremove1)
+
+# remove ones from GoA that have no ssb data
+GoAremove2 <- c("ATKAGA", "BIGSKAGA", "GPOCTOGA", "LNOSESKAGA", "SRAKEROCKGA", "SSTHORNHGA", "YEYEROCKGA")
+GoA <- GoA[!(GoA$stockid %in% GoAremove2),]
+
+# remove ones that don't interact with other species
+GoAremove3 <- c("DSOLEGA", "DUSROCKGA", "NROCKGA", "NRSOLEGA", "REXSOLEGA", "REYEROCKGA")
+GoA <- GoA[!(GoA$stockid %in% GoAremove3),]
+GoAssb <- select(GoAssb, -GoAremove3)
+
