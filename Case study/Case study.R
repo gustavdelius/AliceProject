@@ -67,3 +67,9 @@ row.names(GoA.r) <- NULL
 r.long <- melt(GoA.r, id.vars = "year") # converts data to long form
 colnames(r.long) <- c("year", "species", "recruits")
 ggplot(r.long, aes(x = year, y = recruits, col = species, group = species)) + geom_line()
+
+# Plotting SSB vs recruits
+GoA.long <- data.frame(ssb.long, r.long$recruits)
+colnames(GoA.long) <- c("year", "species", "ssb", "recruits")
+ggplot(GoA.long, aes(x = ssb, y = recruits, col = species, group = species)) + geom_line()
+
