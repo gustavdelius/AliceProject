@@ -1,3 +1,7 @@
+<p align="center">
+𓆝 𓆟 𓆞 𓆟 𓆝
+</p>
+
 # MMath Extended Independent Project (in progress)
 
 ## Overview
@@ -36,3 +40,7 @@ Report deadline 27/04/2026 and presentation day 08/05/2026.
 
 ### Other files
 - 'Extended Independent Project.Rproj' is the associated R project for this repository.
+
+<p align="center">
+𓆝 𓆟 𓆞 𓆟 𓆝
+</p>
