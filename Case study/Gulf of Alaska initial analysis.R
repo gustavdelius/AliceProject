@@ -3,8 +3,8 @@ library(dplyr)
 ##### Gulf of Alaska initial analysis #####
 
 # Read in data
-alaska1 <- read.csv("~/GitHub/extended-independent-project/NOAA Stock Smart data/Assessment_TimeSeries_Data_Part_1.csv")
-alaska2 <- read.csv("~/GitHub/extended-independent-project/NOAA Stock Smart data/Assessment_TimeSeries_Data_Part_2.csv")
+alaska1 <- read.csv("~/GitHub/extended-independent-project/NOAA Fisheries data/Assessment_TimeSeries_Data_Part_1.csv")
+alaska2 <- read.csv("~/GitHub/extended-independent-project/NOAA Fisheries data/Assessment_TimeSeries_Data_Part_2.csv")
 alaska <- cbind(alaska1, alaska2[,-c(1,2)]) # Combine separate files into 1
 
 # Tidying up
