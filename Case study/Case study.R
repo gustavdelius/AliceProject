@@ -2,6 +2,7 @@ library(dplyr)
 library(reshape2)  
 library(ggplot2)
 library(ggokabeito)
+library(lme4)
 
 load("~/GitHub/extended-independent-project/RAM Legacy R Data/DBdata[asmt][v4.66].RData")
 
@@ -98,7 +99,7 @@ ggplot(r.long, aes(x = year, y = recruits, col = species, group = species)) +
 GoA.long <- data.frame(ssb.long, r.long$recruits)
 colnames(GoA.long) <- c("year", "species", "ssb", "recruits")
 ggplot(GoA.long, aes(x = ssb, y = recruits, col = species, shape = species, group = species)) + 
-  geom_point(size = 2.5) + 
+  geom_point(size = 2.75) + 
   scale_x_log10() + scale_y_log10() +  
   scale_color_okabe_ito(labels = GoA$commonname, name = "Species") + 
   scale_shape_manual(values = c(49:54), labels = GoA$commonname, name = "Species") + 
@@ -108,3 +109,36 @@ ggplot(GoA.long, aes(x = ssb, y = recruits, col = species, shape = species, grou
   ylab("log(R)") +
   ggtitle("Stock-recruitment of 6 species in the Gulf of Alaska 1978-2017")
 
+##### Fitting models #####
+
+# add log(SSB) and log(R) to data frame
+GoA.long$log.ssb <- log(GoA.long$ssb)
+GoA.long$log.recruits <- log(GoA.long$recruits)
+
+# Linear regression
+
+model <- lmer(log.recruits ~ log.ssb + (1 + log.ssb | species), data = GoA.long)
+# warning - model is singular - assume random slope and random intercept are independent
+
+summary(model)
+
+randomeffects <- ranef(model)
+
+u0 <- randomeffects$species$"(Intercept)"
+u1 <- randomeffects$species$"log.ssb"
+
+beta0 <- model@beta[1]
+beta1 <- model@beta[2]
+
+lines <- data.frame(species = unique(GoA.long$species), slope = beta1 + u1, intercept = beta0 + u0)
+
+ggplot(GoA.long, aes(x = log.ssb, y = log.recruits, col = species, shape = species, group = species)) + 
+  geom_point(size = 2.75) +  
+  scale_color_okabe_ito(labels = GoA$commonname, name = "Species") + 
+  scale_shape_manual(values = c(49:54), labels = GoA$commonname, name = "Species") + 
+  theme_bw() +
+  geom_abline(data = lines, aes(slope = slope, intercept = intercept, color = species), linewidth = 0.5) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("log(SSB)") +
+  ylab("log(R)") +
+  ggtitle("Multilevel linear regression for stock-recruitment of 6 species in the Gulf of Alaska 1978-2017")
