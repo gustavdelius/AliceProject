@@ -31,25 +31,13 @@ n_distinct(cs$areaname) # 132 different areas
 ##### Gulf of Alaska #####
 
 GoA <- cs[cs$areaname == 'Gulf of Alaska',] # contains 19 species
+species <- GoA$stockid
+GoA.ssb <- select(ssb.data, any_of(species)) # find ssb data
 
-GoA.ssb <- select(ssb.data, ends_with("GA")) # find ssb data
-remove1 <- c("HERRRIGA", "PSALMPYBUSGA", "SABLEFEBSAIGA") # species that aren't in GoA
-GoA.ssb <- select(GoA.ssb, -remove1)
+ssb.species <- colnames(GoA.ssb)        # Stock IDs of species that have SSB data available
+GoA <- GoA[!(GoA$stockid %in% remove),] # remove from original data frame
 
-# remove species that don't interact with other species
-remove2 <- c("DSOLEGA", "DUSROCKGA", "NROCKGA", "NRSOLEGA", "REXSOLEGA", "REYEROCKGA")
-GoA <- GoA[!(GoA$stockid %in% remove2),]
-GoA.ssb <- select(GoA.ssb, -remove2)
-
-# remove species from original list that don't have stock data
-remove3 <- c("ATKAGA", "BIGSKAGA", "GPOCTOGA", "LNOSESKAGA", "SRAKEROCKGA", "SSTHORNHGA", "YEYEROCKGA")
-GoA <- GoA[!(GoA$stockid %in% remove3),]
-
-GoA.r <- select(r.data, ends_with("GA")) # find recruitment data
-
-GoA.r <- select(GoA.r, -any_of(remove1)) # remove species that aren't in GoA
-GoA.r <- select(GoA.r, -any_of(remove2)) # remove species that don't interact 
-GoA.r <- select(GoA.r, -any_of(remove3)) # remove species that don't have ssb data
+GoA.r <- select(r.data, any_of(species)) # find recruitment data
 
 GoA.ssb <- na.omit(GoA.ssb) # remove rows with missing values
 GoA.r <- na.omit(GoA.r)
@@ -142,3 +130,4 @@ ggplot(GoA.long, aes(x = log.ssb, y = log.recruits, col = species, shape = speci
   xlab("log(SSB)") +
   ylab("log(R)") +
   ggtitle("Multilevel linear regression for stock-recruitment of 6 species in the Gulf of Alaska 1978-2017")
+
