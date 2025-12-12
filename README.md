@@ -16,17 +16,19 @@ My project will be completed in the following stages:
 I will then produce a written report and additionally give a talk on the results of my work.
 
 ## Data
-This project uses data from the RAM Legacy stock assessment database (<https://www.ramlegacy.org/>). The folder '[RAM Legacy R data](https://github.com/alicedwoodley/Extended-Independent-Project/tree/main/RAM%20Legacy%20R%20Data)' contains both the Rdata file and script file describing the contents of the database. 
+This project uses data from the RAM Legacy stock assessment database (<https://www.ramlegacy.org/>). The folder '[RAM Legacy raw data](https://github.com/alicedwoodley/Extended-Independent-Project/tree/main/RAM%20Legacy%20raw%20data)' contains both the Rdata file and script file describing the contents of the database. 
+
+The file 'Gulf_Of_Alaska.RData' contains the processed data used for all following work. It contains two variables:
+- GoA.species : common name, scientific name and RAM Legacy stock ID code for the 6 chosen species.
+- GoA.data : spawning stock biomass (SSB) and recruitment time series for all 6 chosen species.
 
 ## Project stages and repository contents
 
 ### 0 - Initial research
 The folder '[Initial research](https://github.com/alicedwoodley/Extended-Independent-Project/tree/main/Initial%20research)' contains workings through some of chapter 13 of '[Introductory Fisheries Analyses with R](https://derekogle.com/IFAR/)' by Derek Ogle. I made basic plots and fitted single-species stock-recruitment models, first for the Pacific Coast arrowtooth flounder and then for the North Sea European plaice.
 
-### 1 - Selecting a case study (in progress)
-The folder '[Case study](https://github.com/alicedwoodley/Extended-Independent-Project/tree/main/Case%20study)' contains:
-- 'Case study.R'
-  - Searches the database for a suitable region, deciding upon the Gulf of Alaska and choosing a subset of species.
+### 1 - Selecting a [case study](https://github.com/alicedwoodley/Extended-Independent-Project/tree/main/Case%20study)
+Here I search the database for a suitable 
 
 ### 2 - Devising the model
 Stage 2 to be completed around 07/12/2025.
