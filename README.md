@@ -16,9 +16,7 @@ My project will be completed in the following stages:
 I will then produce a written report and additionally give a talk on the results of my work.
 
 ## Data
-In stages 0 and 1, this project uses data from the RAM Legacy stock assessment database (<https://www.ramlegacy.org/>). The folder '[RAM Legacy R data](https://github.com/alicedwoodley/Extended-Independent-Project/tree/main/RAM%20Legacy%20R%20Data)' contains both the Rdata file and script file describing the contents of the database. 
-
-In stage 1 onwards, this project uses data from the NOAA Fisheries database (<https://apps-st.fisheries.noaa.gov/stocksmart?app=homepage>). The folder '[NOAA Fisheries data](https://github.com/alicedwoodley/Extended-Independent-Project/tree/main/NOAA%20Fisheries%20data)' contains the CSV files of the selected species data.
+This project uses data from the RAM Legacy stock assessment database (<https://www.ramlegacy.org/>). The folder '[RAM Legacy R data](https://github.com/alicedwoodley/Extended-Independent-Project/tree/main/RAM%20Legacy%20R%20Data)' contains both the Rdata file and script file describing the contents of the database. 
 
 ## Project stages and repository contents
 
@@ -29,8 +27,6 @@ The folder '[Initial research](https://github.com/alicedwoodley/Extended-Indepen
 The folder '[Case study](https://github.com/alicedwoodley/Extended-Independent-Project/tree/main/Case%20study)' contains:
 - 'Case study.R'
   - Searches the database for a suitable region, deciding upon the Gulf of Alaska and choosing a subset of species.
-- 'Gulf of Alaska initial analysis.R' 
-  - Similar analysis of same species but using data from the NOAA Fisheries database.
 
 ### 2 - Devising the model
 Stage 2 to be completed around 07/12/2025.
@@ -43,9 +39,6 @@ Stage 4 to be completed around 22/02/2026.
 
 ### Report and presentation
 Report deadline 27/04/2026 and presentation day 08/05/2026.
-
-### Other files
-- 'Extended Independent Project.Rproj' is the associated R project for this repository.
 
 <p align="center">
 𓆝 𓆟 𓆞 𓆟 𓆝
