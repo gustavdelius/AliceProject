@@ -1,10 +1,13 @@
-library(dplyr)
-library(reshape2)  
-library(ggplot2)
-library(ggokabeito)
-library(lme4)
 
-load("~/GitHub/extended-independent-project/RAM Legacy R Data/DBdata[asmt][v4.66].RData")
+# Editing - many sections can be found more clearly in other scripts
+
+
+library(lme4)
+library(brms)
+library(lmerTest)
+library(lmtest)
+
+load("~/GitHub/Extended-Independent-Project/RAM Legacy R Data/DBdata[asmt][v4.66].RData")
 
 ##### Finding case study #####
 
@@ -28,28 +31,6 @@ cs <- cs[,c('region','areaname', 'commonname', 'scientificname', 'stockid')]
 # how many different areas are there
 n_distinct(cs$areaname) # 132 different areas
 
-##### Gulf of Alaska #####
-
-GoA <- cs[cs$areaname == 'Gulf of Alaska',] # contains 19 species
-species <- GoA$stockid
-GoA.ssb <- select(ssb.data, any_of(species)) # find ssb data
-
-ssb.species <- colnames(GoA.ssb)        # Stock IDs of species that have SSB data available
-GoA <- GoA[!(GoA$stockid %in% remove),] # remove from original data frame
-
-GoA.r <- select(r.data, any_of(species)) # find recruitment data
-
-GoA.ssb <- na.omit(GoA.ssb) # remove rows with missing values
-GoA.r <- na.omit(GoA.r)
-
-colnames(GoA.ssb) <- GoA$commonname
-GoA.ssb <- data.frame(year = as.numeric(row.names(GoA.ssb)), GoA.ssb) # add year as the first column
-row.names(GoA.ssb) <- NULL # remove row names
-
-colnames(GoA.r) <- GoA$commonname
-GoA.r <- data.frame(year = as.numeric(row.names(GoA.r)), GoA.r)
-row.names(GoA.r) <- NULL
-
 ##### Overview of data #####
 
 # SSB data
@@ -65,7 +46,7 @@ ggplot(ssb.long, aes(x = year, y = ssb, col = species, group = species)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   xlab("Year") +
   ylab("log(SSB)") +
-  ggtitle("Spawning stock of 6 species in the Gulf of Alaska 1978-2017")
+  ggtitle("Spawning stock of 6 species in the Gulf of Alaska 1980-2017")
 
 # Recruit data
 
@@ -80,13 +61,13 @@ ggplot(r.long, aes(x = year, y = recruits, col = species, group = species)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   xlab("Year") +
   ylab("log(R)") +
-  ggtitle("Recruitment of 6 species in the Gulf of Alaska 1978-2017")
+  ggtitle("Recruitment of 6 species in the Gulf of Alaska 1980-2017")
 
 # Plotting SSB vs recruits
 
-GoA.long <- data.frame(ssb.long, r.long$recruits)
-colnames(GoA.long) <- c("year", "species", "ssb", "recruits")
-ggplot(GoA.long, aes(x = ssb, y = recruits, col = species, shape = species, group = species)) + 
+GoA.data <- data.frame(ssb.long, r.long$recruits)
+colnames(GoA.data) <- c("year", "species", "ssb", "recruits")
+ggplot(GoA.data, aes(x = ssb, y = recruits, col = species, shape = species, group = species)) + 
   geom_point(size = 2.75) + 
   scale_x_log10() + scale_y_log10() +  
   scale_color_okabe_ito(labels = GoA$commonname, name = "Species") + 
@@ -95,28 +76,26 @@ ggplot(GoA.long, aes(x = ssb, y = recruits, col = species, shape = species, grou
   theme(plot.title = element_text(hjust = 0.5)) +
   xlab("log(SSB)") +
   ylab("log(R)") +
-  ggtitle("Stock-recruitment of 6 species in the Gulf of Alaska 1978-2017")
+  ggtitle("Stock-recruitment of 6 species in the Gulf of Alaska 1980-2017")
 
-##### Fitting models #####
+##### Multilevel linear regression model #####
 
 # add log(SSB) and log(R) to data frame
 GoA.long$log.ssb <- log(GoA.long$ssb)
 GoA.long$log.recruits <- log(GoA.long$recruits)
 
-# Linear regression
+model.lr <- lmer(log.recruits ~ log.ssb + (1 + log.ssb | species), data = GoA.long)
+# warning - model failed to converge - small warning, could indicate random intercept is better
 
-model <- lmer(log.recruits ~ log.ssb + (1 + log.ssb | species), data = GoA.long)
-# warning - model is singular - assume random slope and random intercept are independent
+summary(model.lr)
 
-summary(model)
-
-randomeffects <- ranef(model)
+randomeffects <- ranef(model.lr)
 
 u0 <- randomeffects$species$"(Intercept)"
 u1 <- randomeffects$species$"log.ssb"
 
-beta0 <- model@beta[1]
-beta1 <- model@beta[2]
+beta0 <- model.lr@beta[1]
+beta1 <- model.lr@beta[2]
 
 lines <- data.frame(species = unique(GoA.long$species), slope = beta1 + u1, intercept = beta0 + u0)
 
@@ -129,5 +108,43 @@ ggplot(GoA.long, aes(x = log.ssb, y = log.recruits, col = species, shape = speci
   theme(plot.title = element_text(hjust = 0.5)) +
   xlab("log(SSB)") +
   ylab("log(R)") +
-  ggtitle("Multilevel linear regression for stock-recruitment of 6 species in the Gulf of Alaska 1978-2017")
+  ggtitle("Multilevel linear regression for stock-recruitment of 6 species in the Gulf of Alaska 1980-2017")
+
+# check responses are approx normally distributed
+qqnorm(GoA.long$log.recruits)
+qqline(GoA.long$log.recruits)
+
+# check normality of residuals
+epsilon <- residuals(model.lr)
+qqnorm(epsilon)
+qqline(epsilon)
+
+# check for homo/heteroscedasticity
+plot(fitted(model.lr), epsilon)
+abline(0,0)
+
+# likelihood ratio test - random slope vs random intercept
+intercept.model <- lmer(log.recruits ~ log.ssb + (1 | species), data = GoA.long)
+
+anova(model.lr, intercept.model)
+
+# likelihood ratio test - random intercept vs no random effects
+no.effects.model <- lm(log.recruits ~ log.ssb, data = GoA.long)
+
+anova(intercept.model, no.effects.model)
+
+##### Bayesian hierarchical model #####
+
+model.b <- brm(log.recruits ~ log.ssb + (1 + log.ssb | species), 
+               data = GoA.long,
+               family = gaussian(),
+               prior = c( 
+                 prior(normal(20, 10), class = "Intercept"), # beta0
+                 prior(normal(20, 10), class = "b"),         # beta1 
+                 prior(exponential(1), class = "sd"),       # u0 and u1 standard deviation 
+                 prior(exponential(1), class = "sigma")     # residual standard deviation
+                 ), 
+               chains = 4, 
+               iter = 4000)
+
 
